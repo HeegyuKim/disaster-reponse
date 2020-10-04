@@ -23,6 +23,14 @@ nltk.download(['punkt', 'wordnet', 'stopwords'])
 
 
 def load_data(database_filepath):
+    """
+        load sqlite database from database_filepath
+        and make dataframe from `Message` table
+        returns
+        - X: message text list
+        - Y: corresponding category list
+        - columns: labels of Y
+    """
     engine = create_engine('sqlite:///{}'.format(database_filepath))
     df = pd.read_sql_table("Message", engine)
     X = df.message
@@ -30,9 +38,19 @@ def load_data(database_filepath):
     return X, Y, list(Y.columns)
 
 
+# skip tokens with custom list
 skip_tokens = stopwords.words('english') + ["'s", "n't"] + list(string.punctuation)
 
 def tokenize(text):
+    """
+        tokenize the text and returns list of token
+        - tokenize
+        - lemmatize
+        - normalize
+        - stop words filtering
+        - punctuation filtering
+    """
+
     lemm = WordNetLemmatizer()
     
     text = word_tokenize(text)
@@ -43,6 +61,9 @@ def tokenize(text):
     
 
 def build_model():
+    """
+        Build a model, all hyperparameters are optimal values by GridSearchCV
+    """
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
@@ -52,12 +73,16 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    """
+        evaludate the model by X_test, Y_Test dataset
+        print the classification report(f1-score, recall, precision) of each column(category)
+    """
     reports = []
     y_pred = model.predict(X_test)
     y_pred = pd.DataFrame(y_pred)
-    y_pred.columns = Y_test.columns
+    y_pred.columns = category_names
     
-    for column in Y_test.columns:
+    for column in category_names:
         report = classification_report(Y_test[column], y_pred[column])
         reports.append(report)
 
@@ -66,6 +91,9 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
+    """
+        Save the model as a pickle file to model_filepath
+    """
     with open(model_filepath, "wb") as f:
         pickle.dump(model, f)
 
