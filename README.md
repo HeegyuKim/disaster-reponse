@@ -1,5 +1,13 @@
 # Disaster Response Pipeline Project
-Udacity Data Science Nanodegree - Project 1
+## Summary
+This project is build a model to predict the disaster situations from text. <br>
+Project template and dataset is provided by Udacity Data Science Nanodegree - Project 1<br>
+
+## How I train the Model?
+- CountVectorizer & TfidfTransformer: Text data is vectorized by TF-IDF
+- RandomForestClassifier: Multiple decision trees to predict the multi-label categories
+- GridSearchCV: Search for best parameters. But due to the limitation of computational performance, I could not try various hyperparameters.
+
 
 ## Setup
 - Python3 required
