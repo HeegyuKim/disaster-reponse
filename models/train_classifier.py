@@ -65,7 +65,7 @@ def build_model():
         Build a model, all hyperparameters are optimal values by GridSearchCV
     """
     pipeline = Pipeline([
-        ('vect', CountVectorizer(tokenizer=tokenize)),
+        ('vect', CountVectorizer(tokenizer=tokenize, max_features=50000)),
         ('tfidf', TfidfTransformer()),
         ('clf', MultiOutputClassifier(RandomForestClassifier()))
     ])
