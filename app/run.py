@@ -9,7 +9,7 @@ from nltk.tokenize import word_tokenize
 
 from flask import Flask
 from flask import render_template, request, jsonify
-from plotly.graph_objs import Bar
+from plotly.graph_objs import Bar, Heatmap
 import joblib
 from sqlalchemy import create_engine
 
@@ -45,6 +45,10 @@ def index():
     # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
+
+    categories = df._get_numeric_data().drop(columns='id')
+    category_counts = categories.sum(axis=0)
+    category_names = list(category_counts.index)
     
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
@@ -64,6 +68,40 @@ def index():
                 },
                 'xaxis': {
                     'title': "Genre"
+                }
+            }
+        },
+        {
+            'data': [
+                Bar(
+                    x=category_names,
+                    y=category_counts
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of Message Categories',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Category"
+                }
+            }
+        },
+        {
+            'data': [
+                Heatmap(z=categories.corr(), 
+                        x=category_names, 
+                        y=category_names)
+            ],
+            'layout': {
+                'title': 'Correlation between Message Categories',
+                'yaxis': {
+                    'title': "Categories"
+                },
+                'xaxis': {
+                    'title': "Categories"
                 }
             }
         }
