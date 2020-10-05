@@ -11,7 +11,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem.wordnet import WordNetLemmatizer
 
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import Pipeline, FeatureUnion
@@ -62,14 +62,28 @@ def tokenize(text):
 
 def build_model():
     """
-        Build a model, all hyperparameters are optimal values by GridSearchCV
+        Build a tf-idf/random forest model and find hyperparameters using GridSearchCV
+        returns optimized model
     """
     pipeline = Pipeline([
-        ('vect', CountVectorizer(tokenizer=tokenize, max_features=50000)),
+        ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
         ('clf', MultiOutputClassifier(RandomForestClassifier()))
     ])
-    return pipeline
+    
+    # params dict to tune a model
+    # Some parameters are commented because it takes too much time.
+    parameters = {
+    #     'clf__estimator__max_depth': [10, 25, 50],
+    #     'clf__estimator__n_estimators': [10, 50, 100],
+    #     'vect__max_df': (0.5, 0.75, 1.0),
+        'vect__max_features': (5000, 10000, 50000)
+    }
+
+    # instantiate a gridsearchcv object with the params defined
+    cv = GridSearchCV(pipeline, param_grid=parameters, verbose=1) 
+
+    return cv
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
